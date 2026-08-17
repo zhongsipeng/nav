@@ -8,9 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class BookmarkNode(BaseModel):
-    children: list[BookmarkNode] = Field(
-        default_factory=list, description="子节点列表"
-    )
+    children: list[BookmarkNode] = Field(default_factory=list, description="子节点列表")
     depth: int
     icon: str | None = None  # 图标可能为 null
     id: int  # 根据你的数据，id 是整数

@@ -7,6 +7,7 @@ from flask import (
 )
 
 from ..common.decorator.validate import validate_api
+
 # from ..common.task.task import example_task
 from ..model.schemes.request_schemes import (
     BatchUpdateRequest,

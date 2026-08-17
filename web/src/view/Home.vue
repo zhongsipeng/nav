@@ -4,8 +4,8 @@
       <el-row style="height: 80px;" type="flex" :align="'middle'" justify="center">
         <img :src="logoUrl" class="sidebar-logo" style="width: 64px; height: 64px;" />
       </el-row>
-      <CollectTree :data="treedata" :collapse="isCollapse" @click="clickTree" @update="updateData" @dropupdate="handleDropUpdate"
-        @toggle-collapse="isCollapse = !isCollapse"></CollectTree>
+      <CollectTree :data="treedata" :collapse="isCollapse" @click="clickTree" @update="updateData"
+        @dropupdate="handleDropUpdate" @toggle-collapse="isCollapse = !isCollapse"></CollectTree>
     </el-aside>
 
     <el-container>
@@ -13,8 +13,8 @@
       <el-header>
         <el-row type="flex" :align="'middle'" justify="left"
           style="max-height: 70px; border-bottom: 1px solid var(--el-menu-border-color)">
-<el-col :style="{ flex: '0 0 60px', minWidth: '60px' }">
-  <div class="collapse-btn" @click="isCollapse = !isCollapse" style="text-align: center; cursor: pointer">
+          <el-col :style="{ flex: '0 0 60px', minWidth: '60px' }">
+            <div class="collapse-btn" @click="isCollapse = !isCollapse" style="text-align: center; cursor: pointer">
               <svg viewBox="0 0 100 100">
                 <path class="line--1" d="M0 40h62c18 0 18-20-17 5L31 55"
                   :style='{ "--length": !isCollapse ? 12.602325267 : "" }'></path>
@@ -91,24 +91,13 @@ const logoUrl = `${appConfig.LOGO_URL}`
 const treedata = ref([])
 const sitelist = ref([])
 
-let pidMapping = {}
-let idLabelMap = {}
+let nodeMapping = {}
 
 // 递归遍历树结构，构建节点映射关系
-function traverseTreeRecursive(node, parentLabel = '') {
-  // 如果当前节点数组不为空，以第一个节点的父ID为键，将整个节点数组存入pidMapping映射中
-  if (node.length > 0) {
-    pidMapping[node[0].pid] = node
-  }
-
-  // 遍历当前节点数组中的每个节点
-  node.forEach((x) => {
-    // 将节点的id与label存入idLabelMap映射中，方便通过id查找标签
-    idLabelMap[x.id] = x.label
-    // 递归遍历子节点，传递当前节点的label作为父标签
-if (x.children && x.children.length > 0) {
-      traverseTreeRecursive(x.children, x.label)
-    }
+function traverseTreeRecursive(node: any) {
+  nodeMapping[node.id] = node
+  Array.isArray(node.children) && node.children.forEach((child: any) => {
+    traverseTreeRecursive(child)
   })
 }
 const getData = async () => {
@@ -116,14 +105,23 @@ const getData = async () => {
   try {
     const res = await getCollect()
     treedata.value = res.data
-    pidMapping = {}
-    idLabelMap = {}
-    traverseTreeRecursive(treedata.value)
+    nodeMapping = {}
+    treedata.value.forEach(x => {
+      traverseTreeRecursive(x)
+      
+    })
+    console.log(nodeMapping)
     // 数据加载完成后，自动展示第一个根节点的数据
     if (treedata.value && treedata.value.length > 0) {
+      nodeMapping[treedata.value[0]["pid"]] = {
+        id: treedata.value[0]["pid"],
+        children: treedata.value,
+        type: "folder"
+      }
       clickTree(treedata.value[0])
     }
   } catch (e) {
+    console.log(e)
     errorTip('数据加载失败')
   } finally {
     loading.value = false
@@ -139,7 +137,7 @@ const clickTree = (node) => {
     const traverseFolders = (n) => {
       if (!n) return
       if (n.type === 'folder') {
-        sitelist.value.push({ label: n.label, children: n.children.filter((x) => x.type !== 'folder'),parentLabel: idLabelMap[n.pid] || '' })
+        sitelist.value.push({ label: n.label, children: n.children.filter((x) => x.type !== 'folder'), parentLabel: nodeMapping[n.pid]?.label || '' })
       }
       if (n.children && n.children.length > 0) {
         n.children.forEach((child) => traverseFolders(child))
@@ -162,13 +160,14 @@ const updateData = (lx, node) => {
     case 'edit': case 'add':
       if (node.id === null) {
         saveCollect(node).then((res) => {
-          pidMapping[res.data.pid].push(res.data)
+          nodeMapping[res.data.pid].children.push(res.data)
           successTip(res.message)
+          clickTree(nodeMapping[node.pid])
         })
         break
       } else {
         saveCollect(node).then((res) => {
-          pidMapping[res.data.pid].forEach((x) => {
+          nodeMapping[res.data.pid].forEach((x) => {
             if (x.id == node.id) {
               for (let k in res.data) {
                 x[k] = res.data[k]
@@ -176,15 +175,19 @@ const updateData = (lx, node) => {
             }
           })
           successTip(res.message)
+          clickTree(nodeMapping[node.pid])
+
         })
       }
       break
     case 'del':
       customConfirm("确认删除？").then(() => {
         delCollect({ ids: [node.id] }).then((res) => {
-          let index = pidMapping[node.pid].findIndex((x) => x.id === node.id)
-          pidMapping[node.pid].splice(index, 1)
+          let index = nodeMapping[node.pid].children.findIndex((x) => x.id === node.id)
+          nodeMapping[node.pid].children.splice(index, 1)
           successTip(res.message)
+          clickTree(nodeMapping[node.pid])
+
         })
 
       })
@@ -284,5 +287,4 @@ const handleExport = () => {
 
   transition: all .5s cubic-bezier(.645, .045, .355, 1), stroke .2s ease;
 }
-
 </style>
