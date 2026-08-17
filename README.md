@@ -2,7 +2,7 @@
 
 基于 **Vue3 + Flask + SQLite** 的本地导航收藏系统：支持树形文件夹/书签管理、拖拽排序、书签导入导出、网站图标抓取，并提供 **Docker 部署**与 **Windows 单文件桌面应用**（exe）两种交付形态。
 
-![](https://cdn.jsdelivr.net/gh/zhongsipeng/PicGo@main/img/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B6-%E5%AE%9A%E5%88%B6%E5%8A%A8%E4%BD%9C%E8%81%94%E7%B3%BBQQ1783420665-%E4%BD%9C%E8%80%85Mcc-2026-08-17-07-23-08.gif)
+![](https://github.com/zhongsipeng/PicGo/raw/main/img/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B6-%E5%AE%9A%E5%88%B6%E5%8A%A8%E4%BD%9C%E8%81%94%E7%B3%BBQQ1783420665-%E4%BD%9C%E8%80%85Mcc-2026-08-17-07-23-08.gif)
 
 ## 功能特性
 
