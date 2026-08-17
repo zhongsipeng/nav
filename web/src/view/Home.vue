@@ -4,7 +4,7 @@
       <el-row style="height: 80px;" type="flex" :align="'middle'" justify="center">
         <img :src="logoUrl" class="sidebar-logo" style="width: 64px; height: 64px;" />
       </el-row>
-      <CollectTree :data="treedata" :collapse="isCollapse" @click="clickTree" @update="updateData"
+      <CollectTree :data="treedata" :collapse="isCollapse" @click="clickTree" @update="updateData" @dropupdate="handleDropUpdate"
         @toggle-collapse="isCollapse = !isCollapse"></CollectTree>
     </el-aside>
 
@@ -153,7 +153,9 @@ const clickTree = (node) => {
 const handleSiteClick = (site) => {
   clickTree(site)
 }
-
+const handleDropUpdate = (node) => {
+  clickTree(node)
+}
 
 const updateData = (lx, node) => {
   switch (lx) {
@@ -211,9 +213,7 @@ const handleFileChange = async (file) => {
     // 确认清空现有数据
     try {
       await customConfirm('导入将清空现有书签数据，确认继续？')
-      console.log('用户导入')
     } catch {
-      console.log('用户取消导入')
       return
     }
 

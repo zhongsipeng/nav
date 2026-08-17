@@ -69,12 +69,10 @@ cd server
 pytest
 ```
 
-全量用例通过（80 passed）。
-
 ## Docker 部署
 
 ```sh
-docker compose build
+docker compose build -t nav:1.0 .
 docker compose up -d
 ```
 

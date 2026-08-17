@@ -58,7 +58,7 @@
             </el-tree>
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" title="表单" width="500">
+    <el-dialog v-model="dialogFormVisible" title="表单" width="500" :lock-scroll="false">
         <el-form :model="form">
             <el-radio-group v-model="form.type">
                 <el-radio value="bookmark" size="large">网站</el-radio>
@@ -107,7 +107,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['click', 'update'])
+const emit = defineEmits(['click', 'update', "dropupdate"])
 
 interface Tree {
     [key: string]: any
@@ -144,7 +144,7 @@ watch(() => props.data, (newData) => {
     }
 }, { immediate: true, deep: false })
 const handleDragStart = (node: Node, ev: DragEvents) => {
-    console.log('drag start', node)
+    // console.log('drag start', node)
 }
 const filterNode = (value: string, data: Tree) => {
     if (!value) return true
@@ -165,10 +165,10 @@ const handleDragLeave = (
     dropNode: Node,
     ev: DragEvents
 ) => {
-    console.log('tree drag leave:', dropNode.label)
+    // console.log('tree drag leave:', dropNode.label)
 }
 const handleDragOver = (draggingNode: Node, dropNode: Node, ev: DragEvents) => {
-    console.log('tree drag over:', dropNode.label)
+    // console.log('tree drag over:', dropNode.label)
 
 }
 const handleDragEnd = (
@@ -177,7 +177,7 @@ const handleDragEnd = (
     dropType: NodeDropType,
     ev: DragEvents
 ) => {
-    console.log('tree drag end:', dropNode && dropNode.label, dropType)
+    // console.log('tree drag end:', dropNode && dropNode.label, dropType)
 }
 const handleDrop = (
     draggingNode,
@@ -202,12 +202,12 @@ const handleDrop = (
             // emit('update', "edit", data)
             batchUpdate({ data: [data] }).then((res) => {
                 // successTip("更新成功！")
+                emit('dropupdate', dropNode.parent.data)
             })
             // data.depth = dropNode.data.depth + 1
             break;
         case "before": case "after":
             let arr
-            console.log(dropNode)
             if (Array.isArray(dropNode.parent.data)) {
                 arr = dropNode.parent.data.map((x, i) => {
                     return {
@@ -228,13 +228,14 @@ const handleDrop = (
             }
 
             batchUpdate({ data: arr }).then((res) => {
+                emit('dropupdate', dropNode.parent.data)
 
             })
             // data.depth = dropNode.data.depth
             break;
 
     }
-    console.log('tree drop:', draggingNode.label, dropNode.label, dropType)
+    // console.log('tree drop:', draggingNode.label, dropNode.label, dropType)
 }
 const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
     if (dropNode.data.type == "folder") {

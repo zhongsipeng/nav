@@ -1,9 +1,8 @@
-# ===== 直接依赖（仅列出项目 import 的第三方库，传递依赖由 pip 自动解析） =====
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
 beautifulsoup4==4.13.3
 requests==2.32.3
-# celery==5.4.0
+#celery==5.4.0
 redis==5.2.0
 gunicorn==23.0.0
 pydantic==2.13.4
