@@ -1,0 +1,36 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/server/.venv/Scripts/python.exe",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    // "python.testing.pytestArgs": [
+    //     "server"
+    // ],
+    // "python.testing.unittestEnabled": false,
+    // "python.testing.pytestEnabled": true,
+    // 1. 为 Python 文件指定 Ruff 作为默认格式化工具
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        // 建议开启保存时自动格式化
+        "editor.formatOnSave": true
+    },
+    // 2. 启用 Ruff 原生语言服务器（性能极佳，务必开启）
+    "ruff.nativeServer": true,
+    // 3. 配置保存时自动修复（Lint 自动修复）
+    "editor.codeActionsOnSave": {
+        // explicit 表示仅在用户明确启用时生效，更可控
+        "source.fixAll.ruff": "explicit",
+        // 自动整理 import 顺序（相当于 isort）
+        "source.organizeImports.ruff": "explicit"
+    },
+    // 4. （可选）如果不想用 Pylint/Flake8，建议禁用内置的 Python 语法检查以防冲突
+    "python.linting.enabled": false,
+    // ... 其他已有配置 ...
+    "terminal.integrated.env.windows": {
+        "PYTHONIOENCODING": "utf-8"
+    },
+    "python.testing.pytestArgs": [
+        "server"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

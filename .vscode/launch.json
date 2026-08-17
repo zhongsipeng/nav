@@ -1,0 +1,49 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Python: 当前文件",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/server",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/server"
+            }
+        },
+        {
+            "name": "Python: Flask 应用",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "flask",
+            "cwd": "${workspaceFolder}/server",
+            "env": {
+                "FLASK_APP": "src/app/run.py",
+                "FLASK_ENV": "development"
+            },
+            "args": [
+                "run",
+                "--debug",
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Pytest 测试",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}",
+                "-sv"
+            ],
+            "cwd": "${workspaceFolder}/server", // 确保这里指向 server/
+            "env": {
+                "PYTHONIOENCODING": "utf-8", // 解决调试时的乱码
+                "PYTHONPATH": "${workspaceFolder}/server"
+            },
+            "console": "integratedTerminal"
+        }
+    ]
+}

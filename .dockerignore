@@ -1,0 +1,45 @@
+# ===== 版本控制 / IDE =====
+.git
+.gitignore
+.vscode
+.idea
+
+# ===== Python 构建产物 =====
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.egg-info/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# ===== Node 构建产物 =====
+web/node_modules/
+web/dist/
+web/.vite/
+
+# ===== 运行时数据（绝不进镜像） =====
+server/instance/
+server/database.db
+server/database.db-journal
+server/log/
+server/file/
+server/celerybeat-schedule*
+server/__pycache__/
+
+# ===== 压缩包（避免把离线安装包带进构建上下文） =====
+*.tar
+*.tar.gz
+*.zip
+
+# ===== 文档与脚本 =====
+*.md
+docs/
+deploy/
+
+# ===== 系统 / 编辑器垃圾 =====
+**/Thumbs.db
+**/.DS_Store
+**/*.swp
+**/*.swo
