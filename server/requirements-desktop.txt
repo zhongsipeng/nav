@@ -1,0 +1,3 @@
+# ===== 桌面版 exe 专用依赖（pywebview 原生窗口） =====
+# 仅供打包 NavApp.exe 使用；Docker 构建不安装这些。
+pywebview==6.2.1

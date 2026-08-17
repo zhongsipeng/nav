@@ -1,0 +1,15 @@
+/* 始终预留滚动条空间，避免 ElLoading lock 导致 body overflow:hidden 时内容区宽度变化引起卡片重排 */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+  --large: 24px;
+  --middle: 16px;
+  --small: 8px;
+  --small-font-size: 14px;
+  --middle-font-size: 16px;
+  --large-font-size: 18px;
+  --text-color: #303133;
+}

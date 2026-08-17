@@ -1,0 +1,29 @@
+[tool.ruff]
+# 设置行长度（默认 88，和 Black 一致）
+line-length = 88
+
+# 指定要检查的目录
+extend-include = ["*.py", "*.pyi"]
+
+# 选择要开启的规则（E 是 pycodestyle，F 是 Pyflakes，I 是 isort）
+# 这里推荐开启常用规则，也可以使用 "ALL" 开启全部（但较严格）
+select = ["E", "F", "I", "N", "W", "UP"]
+
+# 忽略某些规则（例如允许使用 print）
+ignore = ["E501"]  # E501 是行太长，因为格式化工具会处理换行，可忽略
+
+[tool.ruff.format]
+# 引号风格
+quote-style = "double"
+# 缩进宽度
+indent-style = "space"
+
+[tool.pytest.ini_options]
+# 把项目根目录（server/）加入 sys.path，让 from src.app... 能被解析
+pythonpath = ["."]
+# 测试文件发现规则
+testpaths = ["test"]
+python_files = ["test_*.py"]
+# 自动添加 __init__.py 的测试包模式（不强制要求测试目录有 __init__.py）
+# import_mode = "importlib"
+addopts = ["--import-mode=importlib"]

@@ -1,0 +1,40 @@
+@import './base.css';
+
+.m-large {
+  margin: var(--large);
+}
+
+.m-middle {
+  margin: var(--middle);
+}
+
+.m-small {
+  margin: var(--small);
+}
+
+.p-large {
+  padding: var(--large);
+}
+
+.p-middle {
+  padding: var(--middle);
+}
+
+.p-small {
+  padding: var(--small);
+}
+
+.f-large {
+  font-size: var(--large-font-size);
+  color: var(--text-color);
+}
+
+.f-middle {
+  font-size: var(--middle-font-size);
+  color: var(--text-color);
+}
+
+.f-small {
+  font-size: var(--small-font-size);
+  color: var(--text-color);
+}

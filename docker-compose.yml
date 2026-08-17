@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  nav:
+    # 构建本地镜像（首次或代码变更后执行：docker compose build）
+    # 离线部署时可直接用已导入的 image: nav:1.0
+    image: nav:1.0
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    container_name: nav
+    restart: unless-stopped
+    init: true                    # 启用 Docker 内置 init 进程（替代 tini 处理信号）
+
+    ports:
+      - "${HOST_PORT:-5000}:5000"
+
+    # 所有可写路径挂载到宿主机，容器重建不丢数据
+    volumes:
+      #- ./data/data:/app/data       # 应用数据（配置、缓存、临时文件）
+      #- ./data/file:/app/file               # 上传文件、临时文件、模板
+      #- ./data/log:/app/log                 # 应用日志
+      - ./data/db:/app/db                   # SQLite 数据库（独立目录便于备份）
+
+    environment:
+      # 路径（与 Dockerfile ENV 保持一致，显式声明便于调整）
+      - INSTANCE_PATH=/app/data
+      - FILE_PATH=/app/file
+      - LOG_PATH=/app/log
+      - WEB_FOLDER=/app/web/dist
+
+      # 数据库（SQLite 放到挂载卷里，持久化）
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/db/database.db
+
+      # 其他运行时配置
+      - TZ=Asia/Shanghai
+
+    # 健康检查由 Dockerfile HEALTHCHECK 提供
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/getCollect', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    # 资源限制（按需调整，SQLite + Flask 4 worker 建议至少 512M）
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.5'
+        reservations:
+          memory: 256M
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
