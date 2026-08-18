@@ -58,7 +58,6 @@ def _request_hook(app):
         app.logger.info(
             f"【请求方法】{request.method}【请求路径】{request.path}【请求地址】{request.remote_addr}"
         )
-
         userid = get_session("login_userid")
         session_id = get_session("login_session_id")
         if userid in active_sessions and active_sessions.get(userid) != session_id:

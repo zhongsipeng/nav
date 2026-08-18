@@ -22,7 +22,7 @@ nav/
 │   ├── desktop_launcher.py        # 桌面版启动入口（PyInstaller 打包）
 │   ├── build_exe.bat              # 一键打包 NavApp.exe
 │   ├── requirements.txt           # 服务端 / Docker 依赖
-│   ├── requirements-desktop.txt   # 桌面版托盘专用依赖（不进入 Docker）
+│   ├── requirements-desktop.txt   # 桌面版专用依赖（不进入 Docker）
 │   └── configs/.env               # 本地可选配置（gitignore）
 ├── web/                           # Vue3 + Vite 前端
 │   ├── src/                       # 前端源码
@@ -124,4 +124,4 @@ build_exe.bat
 ## 依赖说明
 
 - `server/requirements.txt`：服务端与 Docker 镜像依赖（Flask、SQLAlchemy、pydantic 等）。
-- `server/requirements-desktop.txt`：仅桌面 exe 需要（pystray 托盘、Pillow 图标），Docker 构建不安装。
+- `server/requirements-desktop.txt`：仅桌面 exe 需要，Docker 构建不安装。

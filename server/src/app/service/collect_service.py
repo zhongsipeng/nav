@@ -1,7 +1,7 @@
+import asyncio
 import io
+import time
 from datetime import datetime
-
-from flask import current_app
 
 # from ..common.task.task import update_icon
 from ..common.utils.bookmark_util import (
@@ -10,7 +10,11 @@ from ..common.utils.bookmark_util import (
     parse_bookmark_html,
     validate_file_size,
 )
-from ..common.utils.http_util import get_favicon_as_base64, get_website_title
+from ..common.utils.http_util import (
+    batch_get_favicon_base64,
+    get_favicon_as_base64,
+    get_website_title,
+)
 from ..core.error import raise_business_msg
 from ..core.extensions import db
 from ..model.schemes.request_schemes import SaveCollectRequest
@@ -135,9 +139,11 @@ def merge_collect(collect: SaveCollectRequest):
         # 新建
         if not collect["id"]:
             collect["icon"] = get_favicon_as_base64(collect["url"])
+            time.sleep(1)
         # 业务规则：若未传 name，则尝试抓取网站标题作为 name
         if not collect.get("name"):
-            collect["name"] = get_website_title(collect["url"]) or collect["name"]
+            web_title = get_website_title(collect["url"])
+            collect["name"] = web_title or collect["name"]
 
     # 业务规则：px 为空时，取同 pid 下最大 px + 10 作为当前 px
     # 使用 SELECT ... FOR UPDATE 保证并发场景下的原子性（需 InnoDB 等支持行锁的引擎）
@@ -152,11 +158,6 @@ def merge_collect(collect: SaveCollectRequest):
             )
 
             pid_value = collect.get("pid")
-            current_app.logger.info(
-                "px 为空，准备计算新 px | id=%s pid=%s",
-                collect.get("id"),
-                pid_value,
-            )
             # 加行锁查询同 pid 下的最大 px，防止并发插入产生重复 px
             max_px = collect_repo.get_max_px_with_lock(pid_value)
             collect["px"] = max_px + 10
@@ -217,6 +218,11 @@ def import_collect(files):
     if not data:
         raise_business_msg("未解析到任何书签数据，请检查文件格式")
 
+    # 批量获取图标
+    icon_urls = [item.get("url") for item in data if item.get("url")]
+    icon_dict = {}
+    icon_dict = asyncio.run(batch_get_favicon_base64(icon_urls, max_concurrent=100))
+
     with db.session.begin():
         # 清空原有数据
         collect_repo.clear_all()
@@ -227,7 +233,7 @@ def import_collect(files):
                 "name": item["title"],
                 "type": item["type"],
                 "url": item.get("url"),
-                "icon": item.get("icon"),
+                "icon": icon_dict.get(item.get("url")) or item.get("icon"),
                 "add_date": item.get("add_date"),
                 "tags": item.get("tags"),
                 "depth": len(item["folder"].split("/")) if item["folder"] else 0,

@@ -4,7 +4,7 @@ from flask import Flask
 from .core.appinit.init_db import ensure_database_initialized
 from .core.config import settings
 from .core.extensions import db
-from .core.logger import get_log_handler
+from .core.logger import setup_loggers
 
 
 def create_app():
@@ -24,7 +24,8 @@ def create_app():
     from .core.appinit.handlers import register_handlers
 
     register_handlers(app)  # 集中注册所有处理器
-    app.logger.addHandler(get_log_handler())  # add log handler
+    setup_loggers(app)
+
     ensure_database_initialized(app)  # create database
     from ..app.api import routes
 
@@ -32,5 +33,4 @@ def create_app():
     app.register_blueprint(routes.api)
 
     # celery_init_app(app)
-
     return app

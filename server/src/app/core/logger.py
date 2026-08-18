@@ -5,27 +5,56 @@ from pathlib import Path
 
 from .config import settings
 
+log_folder = Path(settings.log_path)
+log_folder.mkdir(parents=True, exist_ok=True)  # 确保目录存在
 
-def get_log_handler():
-    # 日志地址
-    # 文件名，以日期作为文件名
-    log_file_name = (
-        "logger-" + time.strftime("%Y-%m-%d", time.localtime(time.time())) + ".log"
-    )
-    # 创建日志文件
-    log_file_folder = Path(settings.log_path)
-    log_file_str = log_file_folder / log_file_name
 
-    # 创建日志记录器，指明日志保存路径,每个日志的大小，保存日志的上限
-    file_log_handler = RotatingFileHandler(
-        log_file_str, maxBytes=1024 * 1024, backupCount=10, encoding="UTF-8"
-    )
-    # 设置日志的格式                   发生时间    日志等级     调用的文件名          函数名          行数        日志信息
+class InfoWarningFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelno < logging.ERROR  # 只允许低于 ERROR 的级别
+
+
+def _set_default_handler(logfile_prefix: str = "log"):
     formatter = logging.Formatter(
         "%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s"
     )
-    # 将日志记录器指定日志的格式
-    file_log_handler.setFormatter(formatter)
-    logging.basicConfig(level=logging.INFO, handlers=[file_log_handler])
+    log_file = log_folder / f"{logfile_prefix}-{time.strftime('%Y-%m-%d')}.log"
+    handler = RotatingFileHandler(
+        log_file, maxBytes=1024 * 1024, backupCount=10, encoding="utf-8"
+    )
+    handler.setFormatter(formatter)
+    handler.setLevel(logging.INFO)
+    return handler
 
-    return file_log_handler
+
+def setup_loggers(app):
+    """配置日志器，将 INFO 及以上（不含 ERROR）写入 info.log，ERROR 及以上写入 error.log"""
+    # ---------- 获取根日志器（或自定义 logger）并添加 handler ----------
+    logger = logging.getLogger()  # 根 logger，也可用 logging.getLogger('myapp')
+    logger.setLevel(logging.INFO)  # 全局最低级别，保证 info 能进入
+
+    # ---------- INFO 级别日志文件 ----------
+    info_handler = _set_default_handler("flask-info")
+    info_handler.setLevel(logging.INFO)
+    info_handler.addFilter(InfoWarningFilter())
+
+    # ---------- ERROR 级别日志文件 ----------
+    error_handler = _set_default_handler("flask-error")
+    error_handler.setLevel(logging.ERROR)  # 只记录 ERROR 及以上
+
+    # 如果传入了 app，则使用 app.logger；否则回退到 'flask.app'
+    if app is not None:
+        f_logger = app.logger
+    else:
+        f_logger = logging.getLogger("flask.app")  # 保留兼容性
+    f_logger.handlers.clear()
+    f_logger.propagate = False
+    f_logger.setLevel(logging.INFO)
+    f_logger.addHandler(error_handler)
+    f_logger.addHandler(info_handler)
+    api_logger = logging.getLogger("api_log")
+    api_logger.propagate = False  # 关闭传播
+    f_logger.setLevel(logging.INFO)
+    api_handler = _set_default_handler("api-info")
+    api_logger.addHandler(api_handler)
+    # logger.propagate = False

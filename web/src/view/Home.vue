@@ -108,7 +108,7 @@ const getData = async () => {
     nodeMapping = {}
     treedata.value.forEach(x => {
       traverseTreeRecursive(x)
-      
+
     })
     console.log(nodeMapping)
     // 数据加载完成后，自动展示第一个根节点的数据
@@ -161,19 +161,17 @@ const updateData = (lx, node) => {
       if (node.id === null) {
         saveCollect(node).then((res) => {
           nodeMapping[res.data.pid].children.push(res.data)
+          nodeMapping[res.data.id] = nodeMapping[res.data.pid].children[nodeMapping[res.data.pid].children.length - 1]
           successTip(res.message)
           clickTree(nodeMapping[node.pid])
         })
         break
       } else {
         saveCollect(node).then((res) => {
-          nodeMapping[res.data.pid].forEach((x) => {
-            if (x.id == node.id) {
-              for (let k in res.data) {
-                x[k] = res.data[k]
-              }
-            }
-          })
+          let treenode = nodeMapping[res.data.id]
+          for (var key in res.data) {
+            treenode[key] = res.data[key]
+          }
           successTip(res.message)
           clickTree(nodeMapping[node.pid])
 

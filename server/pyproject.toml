@@ -1,3 +1,5 @@
+[project]
+requires-python = ">= 3.11"
 [tool.ruff]
 # 设置行长度（默认 88，和 Black 一致）
 line-length = 88
