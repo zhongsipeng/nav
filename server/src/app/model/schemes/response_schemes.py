@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Literal
-
 from pydantic import BaseModel, Field
+
+from ..entities import FolderTypeEnum
 
 
 class BookmarkNode(BaseModel):
@@ -15,7 +15,7 @@ class BookmarkNode(BaseModel):
     label: str
     pid: int  # 父节点 ID，-1 表示根
     px: int  # 位置或排序序号
-    type: Literal["folder", "bookmark"]  # 例如 "folder"
+    type: FolderTypeEnum  # 例如 "folder"
     url: str | None = None  # 书签 URL，文件夹则为 null
 
 

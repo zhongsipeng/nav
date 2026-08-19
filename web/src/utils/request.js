@@ -79,7 +79,7 @@ export function request(url, params = {}, method = 'GET',headers) {
         errorMessage = error.message;
       }
 
-      // errorTip(errorMessage)
+      errorTip(errorMessage)
       // 抛出错误（可由调用方捕获处理）
       throw new Error(errorMessage);
     });

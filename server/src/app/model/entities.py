@@ -1,8 +1,16 @@
 import time
+from enum import StrEnum
 
+from sqlalchemy import Enum as SA_Enum
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ..core.extensions import db
+
+
+class FolderTypeEnum(StrEnum):
+    FOLDER = "folder"
+    BOOKMARK = "bookmark"
 
 
 class BaseModelMixin:
@@ -42,6 +50,10 @@ class Collect(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     type = db.Column(db.Text)
+    type: Mapped[FolderTypeEnum] = mapped_column(
+        SA_Enum(FolderTypeEnum, values_callable=lambda enum: [e.value for e in enum]),
+        nullable=False,
+    )
     url = db.Column(db.Text)
     icon = db.Column(db.Text)
     # 默认值为当前 Unix 时间戳（如 1768318968），与导入的 Netscape 书签 ADD_DATE 格式一致

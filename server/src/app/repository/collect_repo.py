@@ -3,20 +3,14 @@
 from sqlalchemy import func
 
 from ..core.extensions import db
-from ..model.entities import Collect
+from ..model.entities import Collect, FolderTypeEnum
 
 
 def get_root_nodes():
     """查询所有根节点（pid=-1），兼容历史字符串 "-1" 数据"""
-    rows = (
-        Collect.query.where(Collect.pid == -1).order_by(Collect.px.asc()).all()
-    )
+    rows = Collect.query.where(Collect.pid == -1).order_by(Collect.px.asc()).all()
     if not rows:
-        rows = (
-            Collect.query.where(Collect.pid == "-1")
-            .order_by(Collect.px.asc())
-            .all()
-        )
+        rows = Collect.query.where(Collect.pid == "-1").order_by(Collect.px.asc()).all()
     return rows
 
 
@@ -31,7 +25,7 @@ def get_non_root_nodes():
 
 def get_non_folder_nodes():
     """查询所有非 folder 类型节点"""
-    return Collect.query.where(Collect.type != "folder").all()
+    return Collect.query.where(Collect.type != FolderTypeEnum.FOLDER).all()
 
 
 def get_max_px_with_lock(pid):

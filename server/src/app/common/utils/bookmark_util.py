@@ -11,6 +11,8 @@ from typing import Any
 
 from bs4 import BeautifulSoup
 
+from ...model.entities import FolderTypeEnum
+
 # 允许的书签文件扩展名
 ALLOWED_BOOKMARK_EXTENSIONS = {".html", ".htm"}
 
@@ -61,7 +63,7 @@ def parse_bookmark_html(html_text: str) -> list[dict[str, Any]]:
             if title:
                 data.append(
                     {
-                        "type": "folder",
+                        "type": FolderTypeEnum.FOLDER,
                         "title": title.text,
                         "folder": "/".join(folder_stack),
                     }
@@ -71,7 +73,7 @@ def parse_bookmark_html(html_text: str) -> list[dict[str, Any]]:
         for a_tag in dl.find_all("a", recursive=False):
             data.append(
                 {
-                    "type": "bookmark",
+                    "type": FolderTypeEnum.BOOKMARK,
                     "title": a_tag.text,
                     "url": a_tag.get("href", ""),
                     "icon": a_tag.get("icon", "") if a_tag.has_attr("icon") else None,
@@ -136,7 +138,7 @@ def generate_bookmark_html(items: list[dict[str, Any]]) -> str:
         """将单个节点的 HTML 追加到 parts 列表"""
         name = html_escape(item.get("name") or "")
         add_date = html_escape(item.get("add_date") or "")
-        if item.get("type") == "folder":
+        if item.get("type") == FolderTypeEnum.FOLDER:
             parts.append(f'<DT><H3 ADD_DATE="{add_date}">{name}</H3>\n')
             parts.append("<DL><p>\n")
             for child in children_map.get(item.get("id"), []):

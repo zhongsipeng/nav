@@ -17,6 +17,7 @@ from ..common.utils.http_util import (
 )
 from ..core.error import raise_business_msg
 from ..core.extensions import db
+from ..model.entities import FolderTypeEnum
 from ..model.schemes.request_schemes import SaveCollectRequest
 from ..repository import collect_repo
 
@@ -61,7 +62,7 @@ def build_collect_tree():
     # ----- 第一步：构建所有 folder 的映射（包含根节点中类型为 folder 的项） -----
     # 先处理非根节点中的 folder
     for item in non_root_rows:
-        if item.type == "folder":
+        if item.type == FolderTypeEnum.FOLDER:
             node = item.ts_model_by_dict(MAPPING)
             node["children"] = []
             folder_bus[item.id] = node
@@ -74,7 +75,7 @@ def build_collect_tree():
             root_ids.add(int(root.id))
         except (TypeError, ValueError):
             root_ids.add(root.id)
-        if root.type == "folder":
+        if root.type == FolderTypeEnum.FOLDER:
             if root.id not in folder_bus:
                 node = root.ts_model_by_dict(MAPPING)
                 node["children"] = []
@@ -88,7 +89,7 @@ def build_collect_tree():
         if parent_id in (-1, "-1"):
             continue
         if parent_id in folder_bus:
-            if item.type == "folder":
+            if item.type == FolderTypeEnum.FOLDER:
                 folder_bus[parent_id]["children"].append(folder_bus[item.id])
             else:
                 node = item.ts_model_by_dict(MAPPING)
@@ -102,7 +103,7 @@ def build_collect_tree():
     # 否则非 folder 子节点会重复（folder 子节点因有去重保护不会重复，但非 folder 没有）。
     result = []
     for root in root_nodes_data:
-        if root.type == "folder" and root.id in folder_bus:
+        if root.type == FolderTypeEnum.FOLDER and root.id in folder_bus:
             # folder 根节点：children 已在第二步通过 folder_bus[parent_id] 完成挂接
             root_node = folder_bus[root.id]
         else:
@@ -116,7 +117,7 @@ def build_collect_tree():
                     match = item.pid == root.id
                 if not match:
                     continue
-                if item.type == "folder" and folder_bus.get(item.id):
+                if item.type == FolderTypeEnum.FOLDER and folder_bus.get(item.id):
                     # folder 子节点从 folder_bus 取（其自身的 children 已在第二步填好）
                     root_node["children"].append(folder_bus[item.id])
                 else:
@@ -135,7 +136,7 @@ def batch_update(data):
 def merge_collect(collect: SaveCollectRequest):
 
     # 新建且未传 name：根据 url 抓取网站标题
-    if collect["type"] != "folder":
+    if collect["type"] != FolderTypeEnum.FOLDER:
         # 新建
         if not collect["id"]:
             collect["icon"] = get_favicon_as_base64(collect["url"])
@@ -247,7 +248,7 @@ def import_collect(files):
                 m["px"] = 0
             obj = collect_repo.add_and_flush(m)
 
-            if item["type"] == "folder":
+            if item["type"] == FolderTypeEnum.FOLDER:
                 folder_path = (
                     "/".join([item["folder"], item["title"]])
                     if item["folder"]

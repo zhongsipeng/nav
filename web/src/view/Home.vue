@@ -224,7 +224,7 @@ const handleFileChange = async (file) => {
       successTip(res.message)
       getData()
     } catch (e) {
-      errorTip(e.message || '导入失败')
+      // errorTip(e.message || '导入失败')
     } finally {
       importLoading.value = false
     }

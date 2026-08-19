@@ -64,10 +64,11 @@
                 <el-radio value="bookmark" size="large">网站</el-radio>
                 <el-radio value="folder" size="large">文件夹</el-radio>
             </el-radio-group>
-            <el-form-item label="名称" :label-width="formLabelWidth">
-                <el-input v-model="form.name" autocomplete="off" placeholder="不填则自动获取网站标题" />
+            <el-form-item label="名称" :label-width="formLabelWidth" >
+                <el-input v-model="form.name" autocomplete="off"
+                    :placeholder="pupopObj.namePlaceholder" />
             </el-form-item>
-            <el-form-item v-if="form.type == 'bookmark'" label="URL" :label-width="formLabelWidth">
+            <el-form-item v-if="form.type == 'bookmark'" label="URL" :label-width="formLabelWidth" :required="form.type === 'bookmark'">
                 <el-input v-model="form.url" autocomplete="off" placeholder="请输入网址" />
             </el-form-item>
         </el-form>
@@ -247,6 +248,10 @@ const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
 }
 
 const formLabelWidth = '140px'
+const pupopObj = reactive({
+    namePlaceholder: "",
+    urlRequired: true
+})
 const dialogFormVisible = ref(false)
 const form = reactive({
     name: "",
@@ -256,7 +261,25 @@ const form = reactive({
     pid: null,
     // depth: null,
 })
-let id = 1000
+
+watch(
+    () => form.type,              // 监听具体属性
+    (newType, oldType) => {
+        // 根据新值修改变量
+        if (newType === 'bookmark') {
+            pupopObj.urlRequired = true
+            pupopObj.namePlaceholder = "不填则自动获取网站标题";
+
+            // 可能还需要强制 url 不能为空等逻辑
+        } else if (newType === 'folder') {
+            pupopObj.urlRequired = false
+            pupopObj.namePlaceholder = "请输入名称"
+            // 比如清空 url（如果允许）
+            // form.url = ''
+        }
+    },
+    { immediate: true }           // 可选：立即执行一次，用于初始化
+)
 const allowDrag = (draggingNode: Node) => {
     return !draggingNode.data.label.includes('Level three 3-1-1')
 }
@@ -296,6 +319,7 @@ const edit = (item) => {
     form.pid = item.pid
     // form.depth = item.depth
     dialogFormVisible.value = true;
+
 }
 
 const handleConfirm = () => {
